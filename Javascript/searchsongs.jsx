@@ -84,7 +84,6 @@ function SearchSongs() {
       setShowSongInfo(true);
     } catch (error) {
       console.error('Error fetching song info:', error);
-      // Handle errors appropriately, maybe display an error message to the user
       alert('Error fetching song info: ' + error.message);
     } finally {
       setLoading(false);
@@ -93,7 +92,7 @@ function SearchSongs() {
 
   const handleAddToFavorites = () => {
     setClick(!isClick);
-    // Implement logic to add songData to favorites
+    localStorage.setItem('likessongs', JSON.stringify([...JSON.parse(localStorage.getItem('favoriteSongs') || '[]'), songData]));
   };
 
   return (
