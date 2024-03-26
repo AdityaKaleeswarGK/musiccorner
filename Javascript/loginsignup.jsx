@@ -33,7 +33,7 @@ function LoginSignup() {
 
       if (response.success) {
         
-        navigate('/app'); 
+        navigate('/App'); 
       } else {
         console.error('Login/Signup failed!'); 
       }
