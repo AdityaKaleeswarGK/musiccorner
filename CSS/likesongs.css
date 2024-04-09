@@ -1,33 +1,41 @@
-.song {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    margin: 1rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: #fff; 
-    animation: fadeInUp 1s ease-in-out; 
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .song h1 {
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
-  }
-  
-  .song p {
-    margin-bottom: 0.3rem;
-    font-size: 0.9rem;
-  }
-  
+.card {
+  border-radius: 15px;
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+  font-size: 1rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.card-text {
+  font-size: 0.875rem;
+}
+
+.container {
+  padding-top: 2rem;
+}
+ 
