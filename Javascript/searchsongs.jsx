@@ -14,10 +14,9 @@ import {
   Row,
   Col,
 } from 'react-bootstrap';
-import "/style/searchsong.css";
-const SPOTIFY_CLIENT_ID = '0e18c9180b0640a180448e9d69bd8d62'; 
-const SPOTIFY_CLIENT_SECRET = 'dce548cdbd7b4d35808dc220e6db2980'; 
-
+import "./style/searchsong.css"; 
+const SPOTIFY_CLIENT_ID = '0e18c9180b0640a180448e9d69bd8d62';
+const SPOTIFY_CLIENT_SECRET = 'dce548cdbd7b4d35808dc220e6db2980';
 function SearchSongs() {
   const [isClick, setClick] = useState(false);  
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,16 +34,25 @@ function SearchSongs() {
 
   useEffect(() => {
     async function fetchAccessToken() {
-      const authParams = {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `grant_type=client_credentials&client_id=${SPOTIFY_CLIENT_ID}&client_secret=${SPOTIFY_CLIENT_SECRET}`,
-      };
+      const authParams = new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: SPOTIFY_CLIENT_ID,
+        client_secret: SPOTIFY_CLIENT_SECRET,
+      });
       
       try {
-        const response = await fetch("https://accounts.spotify.com/api/token", authParams);
+        const response = await fetch("https://accounts.spotify.com/api/token", {
+          method: "POST",
+          body: authParams,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch access token');
+        }
+
         const data = await response.json();
         setAccessToken(data.access_token);
       } catch (error) {
@@ -65,21 +73,24 @@ function SearchSongs() {
           'Authorization': 'Bearer ' + accesstoken
         }
       };
-  
-      const response = await fetch(`https://api.spotify.com/v1/search?q=${searchQuery}&type=track&limit=1`, albumParameters);
-      if (!response.ok) {
-        throw new Error('Failed to retrieve song info');
-      }
       const data = await response.json();
+      if (!data || !data.tracks || !data.tracks.items || data.tracks.items.length === 0) {
+        throw new Error('No track found');
+      }
       const firstTrack = data.tracks.items[0];
+      if (!firstTrack.album || !firstTrack.artists || firstTrack.artists.length === 0) {
+        throw new Error('Invalid track data');
+      }
+      const artistName = firstTrack.artists[0].name; 
       const updatedSongData = {
         image: firstTrack.album.images[0].url,
         album: firstTrack.album.name,
         songTitle: firstTrack.name,
-        artistName: firstTrack.artists[0].name,
-        artistInfo: firstTrack.artists[0].type,
+        artistName: artistName,
+        artistInfo: artistType,
         releaseDate: firstTrack.album.release_date,
       };
+
       setSongData(updatedSongData);
       setShowSongInfo(true);
     } catch (error) {
@@ -89,15 +100,32 @@ function SearchSongs() {
       setLoading(false);
     }
   };
-
-  const handleAddToFavorites = () => {
+  const { Pool } = require('pg');
+  const pool = new Pool({
+  user: 'aditya',
+  host: 'localhost',
+  database: 'musiccorner',
+  password: 'Applegk04!!',
+  port: 5432,
+});
+const handleAddToFavorites = async () => {
+  try {
+    const query = `
+      INSERT INTO favorites (artistName, songTitle, album)
+      VALUES ($1, $2, $3)
+    `;
+    const values = [songData.artistName, songData.songTitle, songData.album];
+    await pool.query(query, values);
+    alert('Song added to favorites!');
     setClick(!isClick);
-    localStorage.setItem('likessongs', JSON.stringify([...JSON.parse(localStorage.getItem('favoriteSongs') || '[]'), songData]));
-  };
-
+  } catch (error) {
+    console.error('Error adding to favorites:', error);
+    alert('Error adding to favorites: ' + error.message);
+  }
+};
   return (
     <Container>
-    <div className='he'>Music Corner</div>
+      <div className='he'>Music Corner</div>
       <InputGroup className="mb-3">
         <FormControl
           value={searchQuery}
@@ -139,5 +167,5 @@ function SearchSongs() {
     </Container>
   );
 }
-
 export default SearchSongs;
+
